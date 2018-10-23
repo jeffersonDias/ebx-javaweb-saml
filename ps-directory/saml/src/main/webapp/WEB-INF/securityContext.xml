@@ -29,12 +29,12 @@
 		<!-- https://docs.spring.io/autorepo/docs/spring-security-saml/1.0.x/reference/html/configuration-metadata.html  7.1.1 Automatic metadata generation ; 7.1.2 Pre-configured metadata -->
 		<!-- AUTO GENERATE SP METADATA  -->
 		<security:custom-filter before="FIRST" ref="metadataGeneratorFilter" />
-		
+
 		<!-- Metadata describing the default local application can be downloaded from URL: -->
 		<!-- http://localhost:8080/saml/saml/web/metadata/display?entityId=urn%3atest%3amickaelg%3aEBX_SAML -->
 
 		<!-- Metadata is also available in the sample application's administration UI under Metadata information -> selected SP. -->
-		
+
 	</security:http>
 
 	<!-- Secured pages with SAML as entry point -->
@@ -64,8 +64,8 @@
 		<property name="defaultTargetUrl" value="${saml.redirectAfterSuccessfulLogin.url}" />
 	</bean>
 
-	<!-- Use the following for interpreting RelayState coming from unsolicited 
-		response as redirect URL: <bean id="successRedirectHandler" class="org.springframework.security.saml.SAMLRelayStateSuccessHandler"> 
+	<!-- Use the following for interpreting RelayState coming from unsolicited
+		response as redirect URL: <bean id="successRedirectHandler" class="org.springframework.security.saml.SAMLRelayStateSuccessHandler">
 		<property name="defaultTargetUrl" value="/" /> </bean> -->
 
 	<!-- Handler deciding where to redirect user after failed login -->
@@ -134,30 +134,31 @@
 	<!-- <bean id="mickConf" class="com.on.ps.security.saml.MickConf" init-method="init" /> -->
 
 	<!-- Filter automatically generates default SP metadata -->
-	<bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter"> 
+	<bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
 		<constructor-arg>
-			<bean class="org.springframework.security.saml.metadata.MetadataGenerator"> 
+			<bean class="org.springframework.security.saml.metadata.MetadataGenerator">
 				<!-- <property name="entityId" value="urn:test:mickaelg:EBX_SAML"/> -->
 				<property name="entityId" value="${saml.sp.entityId}"/>
-				
+				<property name="entityBaseURL" value="${saml.sp.entityBaseURL}"/>
+
 				<property name="extendedMetadata">
-					<bean class="org.springframework.security.saml.metadata.ExtendedMetadata"> 
+					<bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
 						<!-- <property name="signMetadata" value="false"/> -->
-						
+
 						<!-- remove idp selection screen - autoselects the default idp -->
 						<!-- <property name="idpDiscoveryEnabled" value="true"/> -->
-						
+
 						<property name="local" value="${saml.sp.local}"/>
 						<property name="securityProfile" value="${saml.sp.securityProfile}"/>
 						<property name="sslSecurityProfile" value="${saml.sp.sslSecurityProfile}"/>
 						<property name="sslHostnameVerification" value="${saml.sp.sslHostnameVerification}"/>
 						<property name="signMetadata" value="${saml.sp.signMetadata}"/>
-			           
+
 						<!-- <property name="signingKey" value="apollo"/>
 						<property name="encryptionKey" value="apollo"/> -->
 						<property name="signingKey" value="${saml.sp.signingKey}"/>
 						<property name="encryptionKey" value="${saml.sp.encryptionKey}"/>
-			           
+
 						<property name="signingAlgorithm" value="${saml.sp.signingAlgorithm}"/>
 						<property name="requireArtifactResolveSigned" value="${saml.sp.requireArtifactResolveSigned}"/>
 						<property name="requireLogoutRequestSigned" value="${saml.sp.requireLogoutRequestSigned}"/>
@@ -171,13 +172,13 @@
 		</constructor-arg>
 	</bean>
 
-	<!-- The filter is waiting for connections on URL suffixed with filterSuffix 
+	<!-- The filter is waiting for connections on URL suffixed with filterSuffix
 		and presents SP metadata there -->
 	<bean id="metadataDisplayFilter" class="org.springframework.security.saml.metadata.MetadataDisplayFilter" />
 
-	<!-- Configure HTTP Client to accept certificates from the keystore for 
+	<!-- Configure HTTP Client to accept certificates from the keystore for
 		HTTPS verification -->
-	<!-- <bean class="org.springframework.security.saml.trust.httpclient.TLSProtocolConfigurer"> 
+	<!-- <bean class="org.springframework.security.saml.trust.httpclient.TLSProtocolConfigurer">
 		<property name="sslHostnameVerification" value="default"/> </bean> -->
 
 	<!-- IDP Metadata configuration - paths to metadata of IDPs in circle of trust is here -->
@@ -206,12 +207,12 @@
 		<!-- <property name="defaultIDP" value="https://idp.ssocircle.com" /> -->
 		<!-- <property name="defaultIDP" value="https://idp.ssocircle.com" /> -->
 		<property name="defaultIDP" value="${saml.sp.defaultIDP}" />
-		
 
-		<!-- OPTIONAL used when one of the metadata files contains information 
+
+		<!-- OPTIONAL used when one of the metadata files contains information
 			about this service provider -->
 		<!-- <property name="hostedSPName" value=""/> -->
-		<!-- OPTIONAL property: can tell the system which IDP should be used for 
+		<!-- OPTIONAL property: can tell the system which IDP should be used for
 			authenticating user by default. -->
 		<!-- <property name="defaultIDP" value="http://localhost:8080/opensso"/> -->
 	</bean>
@@ -244,7 +245,7 @@
 		<property name="invalidateHttpSession" value="false" />
 	</bean>
 
-	<!-- Override default logout processing filter with the one processing SAML 
+	<!-- Override default logout processing filter with the one processing SAML
 		messages -->
 	<bean id="samlLogoutFilter" class="org.springframework.security.saml.SAMLLogoutFilter">
 		<constructor-arg index="0" ref="successLogoutHandler" />
@@ -253,7 +254,7 @@
 	</bean>
 
 	<!-- Filter processing incoming logout messages -->
-	<!-- First argument determines URL user will be redirected to after successful 
+	<!-- First argument determines URL user will be redirected to after successful
 		global logout -->
 	<bean id="samlLogoutProcessingFilter" class="org.springframework.security.saml.SAMLLogoutProcessingFilter">
 		<constructor-arg index="0" ref="successLogoutHandler" />
@@ -354,14 +355,14 @@
 	<bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory"
 		factory-method="getEngine" />
 
-	<!-- XML parser pool needed for OpenSAML parsing WARNING: If customizing 
-		a ParserPool implementation See https://shibboleth.net/community/advisories/secadv_20131213.txt 
-		Specifically the following should be explicitly set to avoid exploits: 1) 
-		set pool property 'expandEntityReferences' to 'false' 2) set feature 'javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING' 
-		to true 3) set feature 'http://apache.org/xml/features/disallow-doctype-decl' 
-		to true. This is a Xerces-specific feature, including derivatives such as 
-		the internal JAXP implementations supplied with the Oracle and OpenJDK JREs. 
-		For other JAXP implementations, consult the documentation for the implementation 
+	<!-- XML parser pool needed for OpenSAML parsing WARNING: If customizing
+		a ParserPool implementation See https://shibboleth.net/community/advisories/secadv_20131213.txt
+		Specifically the following should be explicitly set to avoid exploits: 1)
+		set pool property 'expandEntityReferences' to 'false' 2) set feature 'javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING'
+		to true 3) set feature 'http://apache.org/xml/features/disallow-doctype-decl'
+		to true. This is a Xerces-specific feature, including derivatives such as
+		the internal JAXP implementations supplied with the Oracle and OpenJDK JREs.
+		For other JAXP implementations, consult the documentation for the implementation
 		for guidance on how to achieve a similar configuration. -->
 	<bean id="parserPool" class="org.opensaml.xml.parse.StaticBasicParserPool"
 		init-method="initialize" />
