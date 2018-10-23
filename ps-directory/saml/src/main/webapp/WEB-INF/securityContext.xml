@@ -58,19 +58,19 @@
 	</bean>
 
 	<!-- Handler deciding where to redirect user after successful login -->
-	<bean id="successRedirectHandler"
-		class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+	<!-- <bean id="successRedirectHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler"> -->
 		<!-- <property name="defaultTargetUrl" value="/ebx" /> -->
+		<!-- <property name="defaultTargetUrl" value="${saml.redirectAfterSuccessfulLogin.url}" /> -->
+		<!-- <property name="defaultTargetUrl" value="/index_ebx.jsp" /> -->
+	<!-- </bean> -->
+
+	<!-- Use the following for interpreting RelayState coming from unsolicited response as redirect URL: -->
+	<bean id="successRedirectHandler" class="org.springframework.security.saml.SAMLRelayStateSuccessHandler">
 		<property name="defaultTargetUrl" value="${saml.redirectAfterSuccessfulLogin.url}" />
 	</bean>
 
-	<!-- Use the following for interpreting RelayState coming from unsolicited
-		response as redirect URL: <bean id="successRedirectHandler" class="org.springframework.security.saml.SAMLRelayStateSuccessHandler">
-		<property name="defaultTargetUrl" value="/" /> </bean> -->
-
 	<!-- Handler deciding where to redirect user after failed login -->
-	<bean id="failureRedirectHandler"
-		class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+	<bean id="failureRedirectHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
 		<property name="useForward" value="true" />
 		<property name="defaultFailureUrl" value="/error.jsp" />
 	</bean>
@@ -120,6 +120,7 @@
 		<property name="defaultProfileOptions">
 			<bean class="org.springframework.security.saml.websso.WebSSOProfileOptions">
 				<property name="includeScoping" value="false" />
+				<property name="relayState" value="${saml.redirectAfterSuccessfulLogin.url}" />
 			</bean>
 		</property>
 	</bean>
@@ -129,7 +130,7 @@
 		<property name="idpSelectionPath" value="/WEB-INF/security/idpSelection.jsp" />
 	</bean>
 
-	<context:property-placeholder location="file:${saml.home}/foo.properties" ignore-unresolvable="true" />
+	<context:property-placeholder location="file:${saml.home}/samlconf.properties" ignore-unresolvable="true" />
 	<!-- <context:property-placeholder location="classpath:foo.properties" ignore-unresolvable="true" /> -->
 	<!-- <bean id="mickConf" class="com.on.ps.security.saml.MickConf" init-method="init" /> -->
 
@@ -262,8 +263,7 @@
 	</bean>
 
 	<!-- Class loading incoming SAML messages from httpRequest stream -->
-	<bean id="processor"
-		class="org.springframework.security.saml.processor.SAMLProcessorImpl">
+	<bean id="processor" class="org.springframework.security.saml.processor.SAMLProcessorImpl">
 		<constructor-arg>
 			<list>
 				<ref bean="redirectBinding" />
@@ -276,61 +276,49 @@
 	</bean>
 
 	<!-- SAML 2.0 WebSSO Assertion Consumer -->
-	<bean id="webSSOprofileConsumer"
-		class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl">
+	<bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl">
 		<property name="maxAuthenticationAge" value="72000" />
 	</bean>
 
 	<!-- SAML 2.0 Holder-of-Key WebSSO Assertion Consumer -->
-	<bean id="hokWebSSOprofileConsumer"
-		class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl" />
+	<bean id="hokWebSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl" />
 
 	<!-- SAML 2.0 Web SSO profile -->
-	<bean id="webSSOprofile"
-		class="org.springframework.security.saml.websso.WebSSOProfileImpl" />
+	<bean id="webSSOprofile" class="org.springframework.security.saml.websso.WebSSOProfileImpl" />
 
 	<!-- SAML 2.0 Holder-of-Key Web SSO profile -->
-	<bean id="hokWebSSOProfile"
-		class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl" />
+	<bean id="hokWebSSOProfile" class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl" />
 
 	<!-- SAML 2.0 ECP profile -->
-	<bean id="ecpprofile"
-		class="org.springframework.security.saml.websso.WebSSOProfileECPImpl" />
+	<bean id="ecpprofile" class="org.springframework.security.saml.websso.WebSSOProfileECPImpl" />
 
 	<!-- SAML 2.0 Logout Profile -->
-	<bean id="logoutprofile"
-		class="org.springframework.security.saml.websso.SingleLogoutProfileImpl" />
+	<bean id="logoutprofile" class="org.springframework.security.saml.websso.SingleLogoutProfileImpl" />
 
 	<!-- Bindings, encoders and decoders used for creating and parsing messages -->
-	<bean id="postBinding"
-		class="org.springframework.security.saml.processor.HTTPPostBinding">
+	<bean id="postBinding" class="org.springframework.security.saml.processor.HTTPPostBinding">
 		<constructor-arg ref="parserPool" />
 		<constructor-arg ref="velocityEngine" />
 	</bean>
 
-	<bean id="redirectBinding"
-		class="org.springframework.security.saml.processor.HTTPRedirectDeflateBinding">
+	<bean id="redirectBinding" class="org.springframework.security.saml.processor.HTTPRedirectDeflateBinding">
 		<constructor-arg ref="parserPool" />
 	</bean>
 
-	<bean id="artifactBinding"
-		class="org.springframework.security.saml.processor.HTTPArtifactBinding">
+	<bean id="artifactBinding" class="org.springframework.security.saml.processor.HTTPArtifactBinding">
 		<constructor-arg ref="parserPool" />
 		<constructor-arg ref="velocityEngine" />
 		<constructor-arg>
-			<bean
-				class="org.springframework.security.saml.websso.ArtifactResolutionProfileImpl">
+			<bean class="org.springframework.security.saml.websso.ArtifactResolutionProfileImpl">
 				<constructor-arg>
 					<bean class="org.apache.commons.httpclient.HttpClient">
 						<constructor-arg>
-							<bean
-								class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager" />
+							<bean class="org.apache.commons.httpclient.MultiThreadedHttpConnectionManager" />
 						</constructor-arg>
 					</bean>
 				</constructor-arg>
 				<property name="processor">
-					<bean
-						class="org.springframework.security.saml.processor.SAMLProcessorImpl">
+					<bean class="org.springframework.security.saml.processor.SAMLProcessorImpl">
 						<constructor-arg ref="soapBinding" />
 					</bean>
 				</property>
@@ -338,8 +326,7 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="soapBinding"
-		class="org.springframework.security.saml.processor.HTTPSOAP11Binding">
+	<bean id="soapBinding" class="org.springframework.security.saml.processor.HTTPSOAP11Binding">
 		<constructor-arg ref="parserPool" />
 	</bean>
 
@@ -352,8 +339,7 @@
 	<bean class="org.springframework.security.saml.SAMLBootstrap" />
 
 	<!-- Initialization of the velocity engine -->
-	<bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory"
-		factory-method="getEngine" />
+	<bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory" factory-method="getEngine" />
 
 	<!-- XML parser pool needed for OpenSAML parsing WARNING: If customizing
 		a ParserPool implementation See https://shibboleth.net/community/advisories/secadv_20131213.txt
@@ -364,10 +350,8 @@
 		the internal JAXP implementations supplied with the Oracle and OpenJDK JREs.
 		For other JAXP implementations, consult the documentation for the implementation
 		for guidance on how to achieve a similar configuration. -->
-	<bean id="parserPool" class="org.opensaml.xml.parse.StaticBasicParserPool"
-		init-method="initialize" />
+	<bean id="parserPool" class="org.opensaml.xml.parse.StaticBasicParserPool" init-method="initialize" />
 
-	<bean id="parserPoolHolder"
-		class="org.springframework.security.saml.parser.ParserPoolHolder" />
+	<bean id="parserPoolHolder" class="org.springframework.security.saml.parser.ParserPoolHolder" />
 
 </beans>
