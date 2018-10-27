@@ -76,8 +76,7 @@
 	</bean>
 
 	<!-- Handler for successful logout -->
-	<bean id="successLogoutHandler"
-		class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
+	<bean id="successLogoutHandler" class="org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler">
 		<property name="defaultTargetUrl" value="/logout.jsp" />
 	</bean>
 
@@ -187,20 +186,18 @@
 		<constructor-arg>
 			<list>
 				<bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
-                    <constructor-arg>
-                        <bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
-                            <constructor-arg>
-                                <!-- <value type="java.io.File">classpath:security/idp.xml</value> -->
-                                <value type="java.io.File">${saml.idp.metadata.location}</value>
-                            </constructor-arg>
-                            <property name="parserPool" ref="parserPool"/>
-                        </bean>
-                    </constructor-arg>
-                    <constructor-arg>
-                        <bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
-                        </bean>
-                    </constructor-arg>
-                </bean>
+					<constructor-arg>
+	          <bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
+	            <constructor-arg>
+              	<value type="java.io.File">${saml.idp.metadata.location}</value>
+	            </constructor-arg>
+	            <property name="parserPool" ref="parserPool"/>
+	          </bean>
+          </constructor-arg>
+          <constructor-arg>
+          	<bean class="org.springframework.security.saml.metadata.ExtendedMetadata"></bean>
+          </constructor-arg>
+        </bean>
 			</list>
 		</constructor-arg>
 
@@ -208,7 +205,6 @@
 		<!-- <property name="defaultIDP" value="https://idp.ssocircle.com" /> -->
 		<!-- <property name="defaultIDP" value="https://idp.ssocircle.com" /> -->
 		<property name="defaultIDP" value="${saml.sp.defaultIDP}" />
-
 
 		<!-- OPTIONAL used when one of the metadata files contains information
 			about this service provider -->
@@ -246,8 +242,7 @@
 		<property name="invalidateHttpSession" value="false" />
 	</bean>
 
-	<!-- Override default logout processing filter with the one processing SAML
-		messages -->
+	<!-- Override default logout processing filter with the one processing SAML messages -->
 	<bean id="samlLogoutFilter" class="org.springframework.security.saml.SAMLLogoutFilter">
 		<constructor-arg index="0" ref="successLogoutHandler" />
 		<constructor-arg index="1" ref="logoutHandler" />
@@ -255,8 +250,7 @@
 	</bean>
 
 	<!-- Filter processing incoming logout messages -->
-	<!-- First argument determines URL user will be redirected to after successful
-		global logout -->
+	<!-- First argument determines URL user will be redirected to after successful global logout -->
 	<bean id="samlLogoutProcessingFilter" class="org.springframework.security.saml.SAMLLogoutProcessingFilter">
 		<constructor-arg index="0" ref="successLogoutHandler" />
 		<constructor-arg index="1" ref="logoutHandler" />
@@ -330,13 +324,13 @@
 		<constructor-arg ref="parserPool" />
 	</bean>
 
-	<bean id="paosBinding"
-		class="org.springframework.security.saml.processor.HTTPPAOS11Binding">
+	<bean id="paosBinding" class="org.springframework.security.saml.processor.HTTPPAOS11Binding">
 		<constructor-arg ref="parserPool" />
 	</bean>
 
 	<!-- Initialization of OpenSAML library -->
-	<bean class="org.springframework.security.saml.SAMLBootstrap" />
+	<!-- <bean class="org.springframework.security.saml.SAMLBootstrap" /> -->
+	<bean class="com.on.ps.security.saml.CustomSAMLBootstrap" />
 
 	<!-- Initialization of the velocity engine -->
 	<bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory" factory-method="getEngine" />
