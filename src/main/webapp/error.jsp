@@ -1,3 +1,4 @@
+<%@page import="org.springframework.web.util.HtmlUtils"%>
 <%@ page import="java.io.StringWriter" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="org.springframework.security.web.WebAttributes" %>
@@ -25,7 +26,7 @@
                             %>
                             <% if (exception != null) { %>
                                 <strong>Message:</strong><br>
-                                <%= exception.getMessage() %>
+                                <%= HtmlUtils.htmlEscape(exception.getMessage()) %>
                                 <br><br>
                                 <strong>StackTrace:</strong><br>
                                 <div style="width: 100%; overflow: scroll"><pre><%
