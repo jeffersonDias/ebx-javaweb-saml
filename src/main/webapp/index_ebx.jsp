@@ -1,3 +1,8 @@
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@page import="org.springframework.web.context.WebApplicationContext"%>
+<%@page import="org.springframework.web.servlet.support.RequestContextUtils"%>
+<%@page import="com.on.ps.security.saml.MappingEbxSamlCredentials"%>
+<%@page import="org.springframework.beans.factory.annotation.Autowired"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Arrays"%>
@@ -11,11 +16,14 @@
 <%@page import="org.opensaml.xml.util.XMLHelper"%>
 
 <%
-  final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	final WebApplicationContext webApplicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getServletContext());
+	final MappingEbxSamlCredentials mapping = (MappingEbxSamlCredentials) webApplicationContext.getBean("myMappingEbxSamlCredentials");
+	
+	final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	final SAMLCredential credential = (SAMLCredential) authentication.getCredentials();
-  pageContext.setAttribute("authentication", authentication);
-  pageContext.setAttribute("credential", credential);
-  pageContext.setAttribute("assertion", XMLHelper.nodeToString(SAMLUtil.marshallMessage(credential.getAuthenticationAssertion())));
+	pageContext.setAttribute("authentication", authentication);
+	pageContext.setAttribute("credential", credential);
+	pageContext.setAttribute("assertion", XMLHelper.nodeToString(SAMLUtil.marshallMessage(credential.getAuthenticationAssertion())));
 
 	if(session.getServletContext().getAttribute("data")==null){
 		session.getServletContext().setAttribute("data", new HashMap<String, Object>());
@@ -27,10 +35,10 @@
 	if(authentication!=null && authentication.getPrincipal()!=null){
 		final Map<String, Object> values = new HashMap<String, Object>();
 
-    values.put("UserID", credential.getAttributeAsString("UserID"));
-		values.put("EmailAddress", credential.getAttributeAsString("EmailAddress"));
-		values.put("FirstName", credential.getAttributeAsString("FirstName"));
-		values.put("LastName", credential.getAttributeAsString("LastName"));
+		values.put("UserID", credential.getAttributeAsString(mapping.getUserID()));
+		values.put("EmailAddress", credential.getAttributeAsString(mapping.getEmailAddress()));
+		values.put("FirstName", credential.getAttributeAsString(mapping.getFirstName()));
+		values.put("LastName", credential.getAttributeAsString(mapping.getLastName()));
 
 		data.put(session.getId(), values);
 	}else{

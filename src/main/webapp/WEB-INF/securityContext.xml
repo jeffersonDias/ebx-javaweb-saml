@@ -330,7 +330,17 @@
 
 	<!-- Initialization of OpenSAML library -->
 	<!-- <bean class="org.springframework.security.saml.SAMLBootstrap" /> -->
-	<bean class="com.on.ps.security.saml.CustomSAMLBootstrap" />
+	<bean class="com.on.ps.security.saml.CustomSAMLBootstrap">
+		<property name="signatureAlgorithmURI" value="${saml.signatureAlgorithmURI}" />
+		<property name="signatureReferenceDigestMethod" value="${saml.signatureReferenceDigestMethod}" />
+	</bean>
+	
+	<bean id="myMappingEbxSamlCredentials" class="com.on.ps.security.saml.MappingEbxSamlCredentials">
+		<property name="userID" value="${saml.mappingebxsamlcredentials.userID}" />
+		<property name="emailAddress" value="${saml.mappingebxsamlcredentials.emailAddress}" />
+		<property name="firstName" value="${saml.mappingebxsamlcredentials.firstName}" />
+		<property name="lastName" value="${saml.mappingebxsamlcredentials.lastName}" />
+	</bean>
 
 	<!-- Initialization of the velocity engine -->
 	<bean id="velocityEngine" class="org.springframework.security.saml.util.VelocityFactory" factory-method="getEngine" />
