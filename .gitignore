@@ -1,4 +1,6 @@
 /target/
+jce_policy-8.zip
+UnlimitedJCEPolicyJDK8
 /.settings/
 /.classpath
 /.project
